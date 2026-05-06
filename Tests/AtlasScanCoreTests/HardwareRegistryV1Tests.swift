@@ -17,6 +17,21 @@ final class HardwareRegistryV1Tests: XCTestCase {
         XCTAssertFalse(pumps.isEmpty)
     }
 
+    func test_bundledCatalogue_has31BaselineModels() {
+        let allSpecs = HardwareRegistryV1.Catalogue.bundled.entries
+        XCTAssertEqual(allSpecs.count, 31, "Expected 31 baseline hardware models")
+    }
+
+    func test_bundledCatalogue_containsGlowworm() {
+        let specs = HardwareRegistryV1.shared.specs(manufacturer: "Glow-worm")
+        XCTAssertFalse(specs.isEmpty, "Glow-worm models should be in the registry")
+    }
+
+    func test_bundledCatalogue_containsViessmann() {
+        let specs = HardwareRegistryV1.shared.specs(manufacturer: "Viessmann")
+        XCTAssertFalse(specs.isEmpty)
+    }
+
     // MARK: - Lookup by model code
 
     func test_lookup_byModelCode_succeeds() {
