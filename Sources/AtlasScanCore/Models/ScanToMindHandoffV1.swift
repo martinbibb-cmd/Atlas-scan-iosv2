@@ -10,6 +10,88 @@
 
 import Foundation
 
+// MARK: - Hardware patch (custom appliance overrides dispatched from Mind)
+
+/// Allows the Mind app to dispatch a custom or site-patched appliance
+/// specification to the Scan app at the start of a visit.
+public struct HardwarePatchV1: Codable, Sendable {
+
+    /// The modelId this patch overrides, or `nil` for a brand-new custom entry.
+    public var targetModelId: UUID?
+
+    /// Human-readable name shown in the ghost-box picker.
+    public var customName: String
+
+    // Physical dimensions (metres) — override the registry values.
+    public var widthM: Double
+    public var heightM: Double
+    public var depthM: Double
+
+    // Clearance offsets (metres) relative to the base model clearances.
+    public var clearanceTopOffsetM:    Double
+    public var clearanceBottomOffsetM: Double
+    public var clearanceFrontOffsetM:  Double
+    public var clearanceBackOffsetM:   Double
+    public var clearanceLeftOffsetM:   Double
+    public var clearanceRightOffsetM:  Double
+
+    public init(
+        targetModelId: UUID? = nil,
+        customName: String,
+        widthM: Double,
+        heightM: Double,
+        depthM: Double,
+        clearanceTopOffsetM: Double    = 0,
+        clearanceBottomOffsetM: Double = 0,
+        clearanceFrontOffsetM: Double  = 0,
+        clearanceBackOffsetM: Double   = 0,
+        clearanceLeftOffsetM: Double   = 0,
+        clearanceRightOffsetM: Double  = 0
+    ) {
+        self.targetModelId = targetModelId
+        self.customName = customName
+        self.widthM = widthM
+        self.heightM = heightM
+        self.depthM = depthM
+        self.clearanceTopOffsetM    = clearanceTopOffsetM
+        self.clearanceBottomOffsetM = clearanceBottomOffsetM
+        self.clearanceFrontOffsetM  = clearanceFrontOffsetM
+        self.clearanceBackOffsetM   = clearanceBackOffsetM
+        self.clearanceLeftOffsetM   = clearanceLeftOffsetM
+        self.clearanceRightOffsetM  = clearanceRightOffsetM
+    }
+}
+
+// MARK: - Visit handoff pack (Mind → Scan direction)
+
+/// Payload dispatched by the Mind app to the Scan app at visit start.
+/// Carried as the `pack` query parameter on `atlasscan:///start-visit`.
+public struct VisitHandoffPackV1: Codable, Sendable {
+
+    /// Schema version.
+    public let schemaVersion: String   // Always "1.0"
+
+    /// The visit to begin.
+    public let visitId: UUID
+
+    /// Optional property address pre-populated from the Mind database.
+    public var propertyAddress: String?
+
+    /// Optional custom appliance specification patched for this site.
+    public var hardwarePatches: HardwarePatchV1?
+
+    public init(
+        visitId: UUID,
+        propertyAddress: String? = nil,
+        hardwarePatches: HardwarePatchV1? = nil
+    ) {
+        self.schemaVersion = "1.0"
+        self.visitId = visitId
+        self.propertyAddress = propertyAddress
+        self.hardwarePatches = hardwarePatches
+    }
+}
+
 // MARK: - Handoff payload
 
 public struct ScanToMindHandoffV1: Codable, Sendable {
@@ -29,6 +111,10 @@ public struct ScanToMindHandoffV1: Codable, Sendable {
     /// Unique identifier for this handoff attempt (for idempotency).
     public let handoffId: UUID
 
+    /// The visit this handoff belongs to (mirrors `session.visitId` for
+    /// bi-directional recall without deserialising the full session).
+    public let visitId: UUID
+
     // MARK: Initialiser
 
     public init(
@@ -42,6 +128,7 @@ public struct ScanToMindHandoffV1: Codable, Sendable {
         self.readiness = readiness
         self.handedOffAt = ISO8601DateFormatter().string(from: handedOffAt)
         self.handoffId = handoffId
+        self.visitId = session.visitId
     }
 }
 

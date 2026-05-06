@@ -58,6 +58,16 @@ final class ScanSessionCoordinator: ObservableObject {
         activePin = nil
     }
 
+    /// Load a previously captured session recalled from the Mind API.
+    ///
+    /// The recalled session replaces the in-progress session and is
+    /// immediately persisted via `AtomicSessionStore` for Van Mode access.
+    func loadRecalledSession(_ recalled: SessionCaptureV2) {
+        session = recalled
+        activePin = nil
+        save()
+    }
+
     // MARK: Rooms
 
     func addRoom(_ room: RoomCaptureV2) {
