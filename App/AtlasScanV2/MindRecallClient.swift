@@ -150,8 +150,8 @@ final class MindRecallClient: ObservableObject {
         }
     }
 
+    /// Hydrate USDZ assets for Van Mode (offline mesh-review mode on-site).
     private func downloadUSDZAssets(for session: SessionCaptureV2) async -> SessionCaptureV2 {
-        guard let store else { return session }
 
         var updated = session
         let usdzDir = store.usdzDirectory(for: session.visitId)
