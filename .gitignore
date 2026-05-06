@@ -1,0 +1,22 @@
+# Swift build artifacts
+.build/
+*.o
+*.d
+
+# Xcode
+*.xcuserstate
+xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+DerivedData/
+
+# SPM
+.swiftpm/
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Environment
+.env
